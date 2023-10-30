@@ -51,8 +51,8 @@ char Map[Buffer_Height][Buffer_Width] = {
 	{"#                                                                         |                                                                        #"},
 	{"#                                                                         |                                                                        #"},
 	{"####################################################################################################################################################"}
-};   // ¸Ê
-char _Fighter[2][Fighter_Height][Fighter_Width] = { 
+};   // ë§µ
+char _Fighter[2][Fighter_Height][Fighter_Width] = {
 	{
 		{"I\\   "},
 		{"I>>- "},
@@ -67,37 +67,38 @@ char _Fighter[2][Fighter_Height][Fighter_Width] = {
 		{" -<<I"},
 		{"   \\I"}
 	}
-}; // ÀüÅõ±â1
+}; // ì „íˆ¬ê¸°1
 
 
-char _Bullet[2][2] = { "->", "<-" }; // ÃÑ¾Ë
+char _Bullet[2][2] = { "->", "<-" }; // ì´ì•Œ
 
-struct Fighter Fighter_info[2] = 
+struct Fighter Fighter_info[2] =
 {
 		{.name = "player1", .team = LEFT,.pos = {.X = 10, .Y = (Buffer_Height / 2) - (Fighter_Height / 2)}},
 		{.name = "player2", .team = RIGHT,.pos = {.X = 133, .Y = (Buffer_Height / 2) - (Fighter_Height / 2)}}
-};   // FighterÀÇ Á¤º¸
+};   // Fighterì˜ ì •ë³´
 
 struct Bullet HeadBullet = { .name = "Head", .direction = 0, .pos = {.X = 0, .Y = 0 }, .prev = NULL, .next = NULL };
 struct Bullet TailBullet = { .name = "Tail", .direction = 0, .pos = {.X = 0, .Y = 0 }, .prev = NULL, .next = NULL };
 
 int Bullet_Count = 0;
 
-char FrontBuffer[Buffer_Height][Buffer_Width] = {'\0'};	// Ãâ·Â ¹öÆÛ
-char BackBuffer[Buffer_Height][Buffer_Width] = {'\0'};  // º¸Á¶ ¹öÆÛ
+char FrontBuffer[Buffer_Height][Buffer_Width] = { '\0' };	// ì¶œë ¥ ë²„í¼
+char BackBuffer[Buffer_Height][Buffer_Width] = { '\0' };  // ë³´ì¡° ë²„í¼
 
-float prevTime = -1000;
+float prevTime1 = -1000;
+float prevTime2 = -1000;
 
-void DrawMapToBackBuffer(); 		// BackBuffer¿¡ MapÀ» ±×¸²
-void DrawFighterToBackButffer(char(*fighter)[Fighter_Width], struct Fighter);	// BackBuffer¿¡ Fighter1 À» ±×¸²
-void DrawPosToBackBuffer(struct Point p, int x, int y);	// BackBuffer¿¡ Fighter1_Pos À» ±×¸² 
-void ClearBackBuffer();				// BackBuffer¸¦ ºñ¿ò
-void DrawBulletToBackBuffter();		// BackBuffer¿¡ ÃÑ¾Ë ±×¸²
-void render();						// BackBuffer¿¡ ±×·ÁÁø °ÍµéÀ» FrontBuffer¿¡ ±×¸²
-void printFrontBuffer();			// FrontBuffer¸¦ È­¸é¿¡ Ãâ·ÂÇÔ.
-void Fighter1Move(struct Fighter*);	// Fighter ÀÌµ¿
-void BulletProduce(struct Fighter);		  // ÃÑ¾Ë »ý¼º.
-void Shooting();						  // ÃÑ¾Ë ¹ß»ç.
+void DrawMapToBackBuffer(); 		// BackBufferì— Mapì„ ê·¸ë¦¼
+void DrawFighterToBackButffer(char(*fighter)[Fighter_Width], struct Fighter);	// BackBufferì— Fighter1 ì„ ê·¸ë¦¼
+void DrawPosToBackBuffer(struct Point p, int x, int y);	// BackBufferì— Fighter1_Pos ì„ ê·¸ë¦¼ 
+void ClearBackBuffer();				// BackBufferë¥¼ ë¹„ì›€
+void DrawBulletToBackBuffter();		// BackBufferì— ì´ì•Œ ê·¸ë¦¼
+void render();						// BackBufferì— ê·¸ë ¤ì§„ ê²ƒë“¤ì„ FrontBufferì— ê·¸ë¦¼
+void printFrontBuffer();			// FrontBufferë¥¼ í™”ë©´ì— ì¶œë ¥í•¨.
+void Fighter1Move(struct Fighter*);	// Fighter ì´ë™
+void BulletProduce(struct Fighter);		  // ì´ì•Œ ìƒì„±.
+void Shooting();						  // ì´ì•Œ ë°œì‚¬.
 
 int main(void)
 {
@@ -117,7 +118,7 @@ int main(void)
 		DrawBulletToBackBuffter();
 		render();
 		printFrontBuffer();
-		
+
 		for (int i = 0; i < 2; i++)
 		{
 			Fighter1Move(Fighter_info + i);
@@ -128,7 +129,7 @@ int main(void)
 	return 0;
 }
 
-void DrawMapToBackBuffer() {	// BackBuffer¿¡ MapÀ» ±×¸²
+void DrawMapToBackBuffer() {	// BackBufferì— Mapì„ ê·¸ë¦¼
 	for (int i = 0; i < Buffer_Height; i++)
 	{
 		for (int j = 0; j < Buffer_Width; j++)
@@ -138,7 +139,7 @@ void DrawMapToBackBuffer() {	// BackBuffer¿¡ MapÀ» ±×¸²
 	}
 }
 
-void DrawFighterToBackButffer(char (*fighter)[Fighter_Width], struct Fighter f) // BackBuffer¿¡ Fighter1 À» ±×¸²
+void DrawFighterToBackButffer(char(*fighter)[Fighter_Width], struct Fighter f) // BackBufferì— Fighter1 ì„ ê·¸ë¦¼
 {
 	for (int i = 0; i < Fighter_Height; i++)
 	{
@@ -149,7 +150,7 @@ void DrawFighterToBackButffer(char (*fighter)[Fighter_Width], struct Fighter f) 
 	}
 }
 
-void DrawPosToBackBuffer(struct Point p, int x, int y) {	// BackBuffer¿¡ Fighter1_Pos À» ±×¸² 
+void DrawPosToBackBuffer(struct Point p, int x, int y) {	// BackBufferì— Fighter1_Pos ì„ ê·¸ë¦¼ 
 	char temp[10];
 	sprintf(temp, "(%d, %d)", p.X, p.Y);
 	for (int i = 0; i < strlen(temp); i++)
@@ -176,7 +177,7 @@ void DrawBulletToBackBuffter()
 }
 
 
-void ClearBackBuffer() {	// BackBuffer¸¦ ºñ¿ò
+void ClearBackBuffer() {	// BackBufferë¥¼ ë¹„ì›€
 	for (int i = 0; i < Buffer_Height; i++)
 	{
 		for (int j = 0; j < Buffer_Width; j++)
@@ -186,109 +187,109 @@ void ClearBackBuffer() {	// BackBuffer¸¦ ºñ¿ò
 	}
 }
 
-	void render()				// BackBuffer¿¡ ±×·ÁÁø °ÍµéÀ» FrontBuffer¿¡ ±×¸²
+void render()				// BackBufferì— ê·¸ë ¤ì§„ ê²ƒë“¤ì„ FrontBufferì— ê·¸ë¦¼
+{
+	for (int i = 0; i < Buffer_Height; i++)
 	{
-		for (int i = 0; i < Buffer_Height; i++)
+		for (int j = 0; j < Buffer_Width; j++)
 		{
-			for (int j = 0; j < Buffer_Width; j++)
+			if (FrontBuffer[i][j] != BackBuffer[i][j])
 			{
-				if (FrontBuffer[i][j] != BackBuffer[i][j])
+				if (BackBuffer[i][j] == '\0')
 				{
-					if (BackBuffer[i][j] == '\0')
-					{
-						FrontBuffer[i][j] = ' ';
-					}
-					else
-					{
-						FrontBuffer[i][j] = BackBuffer[i][j];
-					}
+					FrontBuffer[i][j] = ' ';
+				}
+				else
+				{
+					FrontBuffer[i][j] = BackBuffer[i][j];
 				}
 			}
 		}
-		ClearBackBuffer();
 	}
+	ClearBackBuffer();
+}
 
-	void printFrontBuffer() {		// FrontBuffer¸¦ È­¸é¿¡ Ãâ·ÂÇÔ.
-		gotoxy(0, 0);
-		for (int i = 0; i < Buffer_Height; i++)
+void printFrontBuffer() {		// FrontBufferë¥¼ í™”ë©´ì— ì¶œë ¥í•¨.
+	gotoxy(0, 0);
+	for (int i = 0; i < Buffer_Height; i++)
+	{
+		for (int j = 0; j < Buffer_Width; j++)
 		{
-			for (int j = 0; j < Buffer_Width; j++)
-			{
-				printf("%c", FrontBuffer[i][j]);
-			}
-			if (i != Buffer_Height - 1) printf("\n");
+			printf("%c", FrontBuffer[i][j]);
 		}
+		if (i != Buffer_Height - 1) printf("\n");
 	}
+}
 
-void Fighter1Move(struct Fighter* fighter)			// Fighter ÀÌµ¿
+void Fighter1Move(struct Fighter* fighter)			// Fighter ì´ë™
 {
 	if (fighter->team == LEFT)
 	{
-		if (GetAsyncKeyState(VK_A) & 0x8000) { //¿ÞÂÊ
+		if (GetAsyncKeyState(VK_A) & 0x8000) { //ì™¼ìª½
 			if (fighter->pos.X > 1 + (FighterSpeed - 1))
 			{
 				fighter->pos.X += -1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_D) & 0x8000) { //¿À¸¥ÂÊ
+		if (GetAsyncKeyState(VK_D) & 0x8000) { //ì˜¤ë¥¸ìª½
 			if (fighter->pos.X < (Buffer_Width / 2) - Fighter_Width - (FighterSpeed - 1))
 			{
 				fighter->pos.X += 1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_W) & 0x8000) { //À§
+		if (GetAsyncKeyState(VK_W) & 0x8000) { //ìœ„
 			if (fighter->pos.Y > 1 + (FighterSpeed - 1))
 			{
 				fighter->pos.Y += -1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_S) & 0x8000) { //¾Æ·¡
+		if (GetAsyncKeyState(VK_S) & 0x8000) { //ì•„ëž˜
 			if (fighter->pos.Y < (Buffer_Height - 1) - Fighter_Height - (FighterSpeed - 1))
 			{
 				fighter->pos.Y += 1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_C) & 0x8000) { // ÃÑ¾Ë »ý¼º
+		if (GetAsyncKeyState(VK_C) & 0x8000) { // ì´ì•Œ ìƒì„±
 			float Moment = clock();
-			if ((Moment - prevTime) / CLOCKS_PER_SEC >= ShootSpan)
+			if ((Moment - prevTime1) / CLOCKS_PER_SEC >= ShootSpan)
 			{
 				BulletProduce(*fighter);
-				prevTime = Moment;
+				prevTime1 = Moment;
 			}
 		}
 	}
 	else if (fighter->team == RIGHT)
 	{
-		if (GetAsyncKeyState(VK_J) & 0x8000) { //¿ÞÂÊ
+		if (GetAsyncKeyState(VK_J) & 0x8000) { //ì™¼ìª½
 			if (fighter->pos.X > (Buffer_Width / 2) + (FighterSpeed + 1))
 			{
 				fighter->pos.X += -1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_L) & 0x8000) { //¿À¸¥ÂÊ
+		if (GetAsyncKeyState(VK_L) & 0x8000) { //ì˜¤ë¥¸ìª½
 			if (fighter->pos.X < 148 - Fighter_Width - (FighterSpeed + 1))
 			{
 				fighter->pos.X += 1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_I) & 0x8000) { //À§
+		if (GetAsyncKeyState(VK_I) & 0x8000) { //ìœ„
 			if (fighter->pos.Y > 1 + (FighterSpeed - 1))
 			{
 				fighter->pos.Y += -1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_K) & 0x8000) { //¾Æ·¡
+		if (GetAsyncKeyState(VK_K) & 0x8000) { //ì•„ëž˜
 			if (fighter->pos.Y < (Buffer_Height - 1) - Fighter_Height - (FighterSpeed - 1))
 			{
 				fighter->pos.Y += 1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_N) & 0x8000) { // ÃÑ¾Ë »ý¼º
+		if (GetAsyncKeyState(VK_N) & 0x8000) { // ì´ì•Œ ìƒì„±
 			float Moment = clock();
-			if ((Moment - prevTime) / CLOCKS_PER_SEC >= ShootSpan)
+			if ((Moment - prevTime2) / CLOCKS_PER_SEC >= ShootSpan)
 			{
 				BulletProduce(*fighter);
-				prevTime = Moment;
+				prevTime2 = Moment;
 			}
 		}
 	}
@@ -297,15 +298,15 @@ void Fighter1Move(struct Fighter* fighter)			// Fighter ÀÌµ¿
 void BulletProduce(struct Fighter fighter)
 {
 	struct Bullet* newBullet = (struct Bullet*)malloc(sizeof(struct Bullet));
-	strcpy_s(newBullet->name, sizeof(newBullet->name),fighter.name);
+	strcpy_s(newBullet->name, sizeof(newBullet->name), fighter.name);
 
-	if (fighter.team == LEFT)	// ¿ÞÂÊ Áø¿µ
+	if (fighter.team == LEFT)	// ì™¼ìª½ ì§„ì˜
 	{
 		newBullet->pos.X = fighter.pos.X + 2;
 		newBullet->pos.Y = fighter.pos.Y + 2;
 		newBullet->direction = 1;
 	}
-	else				// ¿À¸¥ÂÊ Áø¿µ
+	else				// ì˜¤ë¥¸ìª½ ì§„ì˜
 	{
 		newBullet->pos.X = fighter.pos.X - 1;
 		newBullet->pos.Y = fighter.pos.Y + 2;
@@ -320,7 +321,7 @@ void BulletProduce(struct Fighter fighter)
 	DrawPosToBackBuffer(newBullet->pos, 5, 2);
 }
 
-void Shooting(){
+void Shooting() {
 	struct Bullet* nowBullet = HeadBullet.next;
 	while (nowBullet != &TailBullet) {
 		if (nowBullet->pos.X > 140 || nowBullet->pos.X < 8)
