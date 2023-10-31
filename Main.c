@@ -74,8 +74,8 @@ char _Bullet[2][2] = { "->", "<-" }; // 총알
 
 struct Fighter Fighter_info[2] =
 {
-		{.name = "player1", .team = LEFT,.pos = {.X = 10, .Y = (Buffer_Height / 2) - (Fighter_Height / 2)}},
-		{.name = "player2", .team = RIGHT,.pos = {.X = 133, .Y = (Buffer_Height / 2) - (Fighter_Height / 2)}}
+		{.name = "player1", .team = LEFT, .HP = Default_HP, .pos = {.X = 10, .Y = (Buffer_Height / 2) - (Fighter_Height / 2)}},
+		{.name = "player2", .team = RIGHT, .HP = Default_HP, .pos = {.X = 133, .Y = (Buffer_Height / 2) - (Fighter_Height / 2)}}
 };   // Fighter의 정보
 
 struct Bullet HeadBullet = { .name = "Head", .direction = 0, .pos = {.X = 0, .Y = 0 }, .prev = NULL, .next = NULL };
@@ -89,39 +89,56 @@ char BackBuffer[Buffer_Height][Buffer_Width] = { '\0' };  // 보조 버퍼
 float prevTime1 = -1000;
 float prevTime2 = -1000;
 
+int Playing = 1;
+
 void DrawMapToBackBuffer(); 		// BackBuffer에 Map을 그림
 void DrawFighterToBackButffer(char(*fighter)[Fighter_Width], struct Fighter);	// BackBuffer에 Fighter1 을 그림
 void DrawPosToBackBuffer(struct Point p, int x, int y);	// BackBuffer에 Fighter1_Pos 을 그림 
 void ClearBackBuffer();				// BackBuffer를 비움
 void DrawBulletToBackBuffter();		// BackBuffer에 총알 그림
+void DrawHPToBackBuffer(int HP, int x, int y);
 void render();						// BackBuffer에 그려진 것들을 FrontBuffer에 그림
 void printFrontBuffer();			// FrontBuffer를 화면에 출력함.
 void Fighter1Move(struct Fighter*);	// Fighter 이동
 void BulletProduce(struct Fighter);		  // 총알 생성.
 void Shooting();						  // 총알 발사.
+void Collider(struct Fighter*);
+void Fighter_Died(int);
 
 int main(void)
 {
 	init();
 	HeadBullet.next = &TailBullet;
 	TailBullet.prev = &HeadBullet;
-
-	while (1)
+	
+	while (Playing)
 	{
+		for (int i = 0; i < 2; i++)
+		{
+			Fighter_Died(Fighter_info[i].HP);
+		}
+
 		DrawMapToBackBuffer();
 		for (int i = 0; i < 2; i++)
 		{
 			DrawFighterToBackButffer(_Fighter[i], Fighter_info[i]);
 		}
 		DrawPosToBackBuffer(Fighter_info[0].pos, 2, 2);
-		DrawPosToBackBuffer(Fighter_info[1].pos, 137, 2);
+		DrawHPToBackBuffer(Fighter_info[0].HP, 13, 2);
+		
+		DrawPosToBackBuffer(Fighter_info[1].pos, 126, 2);
+		DrawHPToBackBuffer(Fighter_info[1].HP, 138, 2);
+		
 		DrawBulletToBackBuffter();
+		
 		render();
+		
 		printFrontBuffer();
 
 		for (int i = 0; i < 2; i++)
 		{
 			Fighter1Move(Fighter_info + i);
+			Collider(Fighter_info + i);
 		}
 		Shooting();
 	}
@@ -151,8 +168,8 @@ void DrawFighterToBackButffer(char(*fighter)[Fighter_Width], struct Fighter f) /
 }
 
 void DrawPosToBackBuffer(struct Point p, int x, int y) {	// BackBuffer에 Fighter1_Pos 을 그림 
-	char temp[10];
-	sprintf(temp, "(%d, %d)", p.X, p.Y);
+	char temp[20];
+	sprintf(temp, "Pos(%d, %d)", p.X, p.Y);
 	for (int i = 0; i < strlen(temp); i++)
 	{
 		BackBuffer[y][x + i] = temp[i];
@@ -176,6 +193,15 @@ void DrawBulletToBackBuffter()
 	}
 }
 
+void DrawHPToBackBuffer(int HP, int x, int y)
+{
+	char temp[10];
+	sprintf(temp, "(HP : %d)", HP);
+	for (int i = 0; i < strlen(temp); i++)
+	{
+		BackBuffer[y][x + i] = temp[i];
+	}
+}
 
 void ClearBackBuffer() {	// BackBuffer를 비움
 	for (int i = 0; i < Buffer_Height; i++)
@@ -326,12 +352,11 @@ void Shooting() {
 	while (nowBullet != &TailBullet) {
 		if (nowBullet->pos.X > 140 || nowBullet->pos.X < 8)
 		{
+			// DeleteBullet()
 			struct Bullet* DeleteBullet = nowBullet;
-
 			DeleteBullet->next->prev = DeleteBullet->prev;
 			DeleteBullet->prev->next = DeleteBullet->next;
 			nowBullet = nowBullet->prev;
-
 			free(DeleteBullet);
 		}
 		else
@@ -339,5 +364,45 @@ void Shooting() {
 			nowBullet->pos.X += nowBullet->direction * BulletSpeed;
 		}
 		nowBullet = nowBullet->next;
+	}
+}
+
+void Collider(struct Fighter* fighter)
+{	
+	int dir;
+	if (fighter->team == LEFT)
+	{
+		dir = -1;
+	}
+	else
+	{
+		dir = 1;
+	}
+
+	struct Bullet* nowBullet = HeadBullet.next;
+	while (nowBullet != &TailBullet)
+	{
+		if (nowBullet->direction == dir)
+		{
+			if (fighter->pos.X - 1 <= nowBullet->pos.X && nowBullet->pos.X <= fighter->pos.X + Fighter_Width + 1 &&
+				fighter->pos.Y - 1 <= nowBullet->pos.Y && nowBullet->pos.Y <= fighter->pos.Y + Fighter_Height + 1)
+			{
+				// DeleteBullet()
+				struct Bullet* DeleteBullet = nowBullet;
+				DeleteBullet->next->prev = DeleteBullet->prev;
+				DeleteBullet->prev->next = DeleteBullet->next;
+				nowBullet = nowBullet->prev;
+				free(DeleteBullet);
+				fighter->HP--;
+			}
+		}
+		nowBullet = nowBullet->next;
+	}
+}
+void Fighter_Died(int HP)
+{
+	if (HP <= 0)
+	{
+		Playing = 0;
 	}
 }
