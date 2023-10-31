@@ -1,15 +1,17 @@
 #ifndef DECLARE_H_ 
 #define DECLARE_H_
-void init();					// ÃÊ±â¼³Á¤ ( È­¸é Å©±â ¼³Á¤, Ä¿¼­ ¼û±â±â... ) 
-void gotoxy(int x, int y);		// Ä¿¼­ ÁÂÇ¥ ÀÌµ¿
-void CursorView();				// Ä¿¼­ ¼³Á¤. (Ä¿¼­ ¼û±è)
+void init();					// ì´ˆê¸°ì„¤ì • ( í™”ë©´ í¬ê¸° ì„¤ì •, ì»¤ì„œ ìˆ¨ê¸°ê¸°... ) 
+void gotoxy(int x, int y);		// ì»¤ì„œ ì¢Œí‘œ ì´ë™
+void CursorView();				// ì»¤ì„œ ì„¤ì •. (ì»¤ì„œ ìˆ¨ê¹€)
 int KeyControl();
 
-#define Buffer_Width 148		// È­¸é °¡·Î ±æÀÌ	
-#define Buffer_Height 41		// È­¸é ¼¼·Î ±æÀÌ
+#define Buffer_Width 148		// í™”ë©´ ê°€ë¡œ ê¸¸ì´	
+#define Buffer_Height 41		// í™”ë©´ ì„¸ë¡œ ê¸¸ì´
 
 #define Fighter_Width 5
 #define Fighter_Height 5
+
+#define Default_HP 5
 
 #define Bullet_Width 2
 #define Bullet_Height 1
@@ -19,14 +21,14 @@ int KeyControl();
 #define LEFT 3
 #define RIGHT 4
 
-// »ç¿ëÀÚ 1 Å°
+// ì‚¬ìš©ì 1 í‚¤
 #define VK_W 0x57
 #define VK_S 0x53
 #define VK_A 0x41
 #define VK_D 0x44
 #define VK_C 0x43
 
-// »ç¿ëÀÚ 2 Å°
+// ì‚¬ìš©ì 2 í‚¤
 #define VK_I 0x49
 #define VK_K 0x4B
 #define VK_J 0x4A
@@ -36,7 +38,7 @@ int KeyControl();
 #define FighterSpeed 2
 #define BulletSpeed 5
 
-#define ShootSpan 0.3
+#define ShootSpan 0.5
 
 struct Point {
 	int X;
@@ -46,6 +48,7 @@ struct Point {
 struct Fighter {
 	char name[10];
 	int team;
+	int HP;
 	struct Point pos;
 };
 
