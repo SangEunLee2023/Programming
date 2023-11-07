@@ -3,7 +3,7 @@
 #include "Declare.h"
 
 void init() {
-	system("mode con cols=148 lines=41 | title 1 ´ë 1 ½´ÆÃ°ÔÀÓ");
+	system("mode con cols=148 lines=41 | title Space Gang");
     CursorView();
 }
 
@@ -18,8 +18,8 @@ void gotoxy(int x, int y) {
 void CursorView()
 {
     CONSOLE_CURSOR_INFO cursorInfo = { 0, };
-    cursorInfo.dwSize = 1; //Ä¿¼­ ±½±â (1 ~ 100)
-    cursorInfo.bVisible = FALSE; //Ä¿¼­ Visible TRUE(º¸ÀÓ) FALSE(¼û±è)
+    cursorInfo.dwSize = 1; //ì»¤ì„œ êµµê¸° (1 ~ 100)
+    cursorInfo.bVisible = FALSE; //ì»¤ì„œ Visible TRUE(ë³´ìž„) FALSE(ìˆ¨ê¹€)
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
 }
 
@@ -33,4 +33,9 @@ int KeyControl() {
     case 'd':   return RIGHT; break;
     default: return -1;
     }
+}
+
+void ChangeTextColor(unsigned short color, unsigned short back)
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color | (back << 4));
 }
