@@ -4,6 +4,7 @@ void init();					// 초기설정 ( 화면 크기 설정, 커서 숨기기... )
 void gotoxy(int x, int y);		// 커서 좌표 이동
 void CursorView();				// 커서 설정. (커서 숨김)
 int KeyControl();
+void ChangeTextColor(unsigned short color, unsigned short back);
 
 #define Buffer_Width 148		// 화면 가로 길이	
 #define Buffer_Height 41		// 화면 세로 길이
@@ -40,6 +41,23 @@ int KeyControl();
 
 #define ShootSpan 0.5
 
+#define BLACK 0
+#define DARK_BLUE 1
+#define DARK_GREEN 2
+#define DARK_SKYBLUE 3
+#define DARK_RED 4
+#define DARK_VOILET 5
+#define DAKR_YELLOW 6
+#define GRAY 7
+#define DARK_GRAY 8
+#define BLUE 9
+#define GREEN 10
+#define SKYBLUE 11
+#define RED 12
+#define VIOLET 13
+#define YELLOW 14
+#define WHITE 15
+
 struct Point {
 	int X;
 	int Y;
@@ -50,6 +68,7 @@ struct Fighter {
 	int team;
 	int HP;
 	struct Point pos;
+	unsigned short color;
 };
 
 struct Bullet {
