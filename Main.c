@@ -1,16 +1,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include<stdio.h>
-#include<Windows.h>
-#include<conio.h>
-#include <process.h>
-#include<string.h>
-#include "Declare.h"
-#include<stdlib.h>
-#include<time.h.>
-
-#include<string.h>
-#include <locale.h>
+#include<stdio.h>	// 표준 입출력 헤더
+#include<Windows.h> // 콘솔게임 만들기 위한 해더
+#include<conio.h>   // _getch() 사용하기 위한 해더
+#include<string.h>  // 문자열을 처리하기 위한  헤더
+#include "Declare.h" // Declare.h
+#include<stdlib.h>	// 동적할당을 위한 헤더
+#include<time.h.>	// sleep()을 위한 헤더
 
 wchar_t End[Buffer_Height][Buffer_Width] =
 
@@ -56,7 +52,7 @@ wchar_t End[Buffer_Height][Buffer_Width] =
 	L"                                                                                                                                                    ",
 	L"                                                                                                                                                    ",
 	L"                                                                                                                                                    "
-};
+};	// 엔딩
 
 wchar_t red[6][24] =
 {
@@ -66,7 +62,7 @@ wchar_t red[6][24] =
 	{L"|    /  |  __| | | | |"},
 	{L"| |\\ \\  | |___ | |/  /"},
 	{L"\\_| \\_| \\____/ |____/ "}
-};
+}; // red가 이겼을때 이벤트
 
 wchar_t blue[6][29] =
 {
@@ -76,7 +72,7 @@ wchar_t blue[6][29] =
 	{L"| ___ \\| |    | | | ||  __| "},
 	{L"| |_/ /| |____| |_| || |___ "},
 	{L"\\____/ \\_____/ \\___/ \\____/ "}
-};
+}; // blue가 이겻을때 이벤트
 
 
 wchar_t start2[Buffer_Height][Buffer_Width + 14] =
@@ -121,7 +117,7 @@ wchar_t start2[Buffer_Height][Buffer_Width + 14] =
 	L"/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////",
 	L"/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////",
 	L"/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////",
-};
+}; // 오프닝
 char Map[Buffer_Height][Buffer_Width] = {
 	{"####################################################################################################################################################"},
 	{"#                                                                         |                                                                        #"},
@@ -180,62 +176,65 @@ char _Fighter[2][Fighter_Height][Fighter_Width] = {
 		{" -<<I"},
 		{"   \\I"}
 	}
-}; // 전투기1
+}; // 전투기 아스키 아트
 
-char _Bullet[2][2] = { "->", "<-" }; // 총알
+char _Bullet[2][2] = { "->", "<-" }; // 총알 아스키 아트
 
 struct Fighter Fighter_info[2] =
 {
 		{.name = "player1", .team = LEFT, .HP = Default_HP, .pos = {.X = 10, .Y = (Buffer_Height / 2) - (Fighter_Height / 2)}, .color = RED},
 		{.name = "player2", .team = RIGHT, .HP = Default_HP, .pos = {.X = 133, .Y = (Buffer_Height / 2) - (Fighter_Height / 2)}, .color = BLUE}
-};   // Fighter의 정보
+};   // 전투기의 정보
 
-struct Bullet HeadBullet = { .name = "Head", .direction = 0, .pos = {.X = 0, .Y = 0 }, .prev = NULL, .next = NULL };
-struct Bullet TailBullet = { .name = "Tail", .direction = 0, .pos = {.X = 0, .Y = 0 }, .prev = NULL, .next = NULL };
+struct Bullet HeadBullet = { .name = "Head", .direction = 0, .pos = {.X = 0, .Y = 0 }, .prev = NULL, .next = NULL };	// 연결리스트를 위한 Header Node
+struct Bullet TailBullet = { .name = "Tail", .direction = 0, .pos = {.X = 0, .Y = 0 }, .prev = NULL, .next = NULL };	// 연결리스트를 위한 Tail Node
 
-int Bullet_Count = 0;
+int Bullet_Count = 0;	// 총알의 개수
 
-struct Text {
+struct Text {	// Text 정보를 저장할 구조체
 	unsigned short TextColor;
 	unsigned short BackgroundColor;
 	char c;
 };
 
-struct Text PrevBuffer[Buffer_Height][Buffer_Width];	// 출력 버퍼
-struct Text CurrentBuffer[Buffer_Height][Buffer_Width];  // 보조 버퍼
+struct Text PrevBuffer[Buffer_Height][Buffer_Width];	 // 보조 버퍼
+struct Text CurrentBuffer[Buffer_Height][Buffer_Width];  // 메인 버퍼
 
-float prevTime1 = -1000;
-float prevTime2 = -1000;
+float prevTime1 = -1000;	// 전투기1 의 총알 쿨타임
+float prevTime2 = -1000;	// 전투기2 의 총알 쿨타임
 
-int Playing = 1;
+int Playing = 1;	// 게임 플레이 유무
 
-void DrawMapToBackBuffer(); 		// BackBuffer에 Map을 그림
-void DrawFighterToBackButffer(char(*fighter)[Fighter_Width], struct Fighter);	// BackBuffer에 Fighter1 을 그림
-void DrawPosToBackBuffer(struct Fighter f, int x, int y);	// BackBuffer에 Fighter1_Pos 을 그림 
-void ClearBuffer(struct Text (*arr)[Buffer_Width]);				// BackBuffer를 비움
-void DrawBulletToBackBuffter();		// BackBuffer에 총알 그림
-void DrawHPToBackBuffer(struct Fighter HP, int x, int y);
-void render();						// BackBuffer에 그려진 것들을 FrontBuffer에 그림
-void FighterMove(struct Fighter*);	// Fighter 이동
+void DrawMapToBackBuffer(); 		// 메인 버퍼에 맵을 그림
+void DrawFighterToBackButffer(char(*fighter)[Fighter_Width], struct Fighter);	// 메인 버퍼에 전투기를 그림
+void DrawPosToBackBuffer(struct Fighter f, int x, int y);	// 메인 버퍼에 전투기의 위치를 그림 
+void DrawBulletToBackBuffter();		// 메인 버퍼에 총알 그림
+void DrawHPToBackBuffer(struct Fighter HP, int x, int y);	// 메인 버퍼에 전투기의 체력을 그림
+void ClearBuffer(struct Text (*arr)[Buffer_Width]);				// 메인 버퍼를 비움
+void render();						// 메인 버퍼의 값을 콘솔에 출력하고, 보조버퍼에 메인 버퍼의 값을 저장함.
+void FighterMove(struct Fighter*);	// 전투기 이동
 void BulletProduce(struct Fighter);		  // 총알 생성.
 void Shooting();						  // 총알 발사.
-void Collider(struct Fighter*);
-void Fighter_Died(int);
+void Collider(struct Fighter*);		// 전투기 충돌처리
+void Fighter_Died(int);				// 전투기 사망
 
-void StartGame(wchar_t (*arr)[Buffer_Width+14]);
-void EndGame();
+void StartGame(wchar_t (*arr)[Buffer_Width+14]);	// 오프닝
+void EndGame();		// 엔딩
 
 int main(void)
 {
 	setlocale(LC_ALL, ""); // ?로 출력되는 현상 방지
-	init();
-	HeadBullet.next = &TailBullet;
-	TailBullet.prev = &HeadBullet;
+	init();					// 초기화 설정
 	
-	ClearBuffer(CurrentBuffer);
+	// 연결리스트 초기설정.
+	HeadBullet.next = &TailBullet;	
+	TailBullet.prev = &HeadBullet;
+	//
 
-	StartGame(start2);
-	while (_getch() != ' ');
+	ClearBuffer(CurrentBuffer); // 메인 버퍼 초기화
+
+	StartGame(start2);	// 게임 오프닝 출력
+	while (_getch() != ' ');	// 사용자가 spacebar 입력 대기 
 
 	while (Playing)
 	{
@@ -510,7 +509,7 @@ void DrawHPToBackBuffer(struct Fighter f, int x, int y)
 	}
 }
 
-void ClearBuffer(struct Text (*arr)[Buffer_Width]) {	// BackBuffer를 비움
+void ClearBuffer(struct Text (*arr)[Buffer_Width]) {	// 메인 버퍼.
 	for (int i = 0; i < Buffer_Height; i++)
 	{
 		for (int j = 0; j < Buffer_Width; j++)
@@ -522,7 +521,7 @@ void ClearBuffer(struct Text (*arr)[Buffer_Width]) {	// BackBuffer를 비움
 	}
 }
 
-void render()				// BackBuffer에 그려진 것들을 FrontBuffer에 그림
+void render()	// 메인 버퍼에 그려진 것들을 출력하고, 보조 버퍼에 메인 버퍼의 데이터를 저장.
 {
 	for (int i = 0; i < Buffer_Height; i++)
 	{
@@ -532,12 +531,14 @@ void render()				// BackBuffer에 그려진 것들을 FrontBuffer에 그림
 		}
 	}
 
+	// 메인 버퍼에 있는 데이터를 콘솔에 출력.
 	for (int i = 0; i < Buffer_Height; i++)
 	{
 		for (int j = 0; j < Buffer_Width; j++)
 		{
 			struct Text current = CurrentBuffer[i][j];
-			if (current.c != PrevBuffer[i][j].c) {
+			if (current.c != PrevBuffer[i][j].c) {	
+				// 이전 버퍼에 남아 있던 데이터들과 값을 비교하고 값이 다르면 gotoxy를 사용하여 값을 바꿈.
 				gotoxy(j, i);
 				ChangeTextColor(current.TextColor, current.BackgroundColor);
 				printf("%c", current.c);
@@ -545,7 +546,7 @@ void render()				// BackBuffer에 그려진 것들을 FrontBuffer에 그림
 		}
 	}
 	
-	for (int i = 0; i < Buffer_Height; i++)
+	for (int i = 0; i < Buffer_Height; i++)	// 메인 버퍼에 값을 보조 버퍼에 저장.
 	{
 		for (int j = 0; j < Buffer_Width; j++)
 		{
@@ -553,38 +554,38 @@ void render()				// BackBuffer에 그려진 것들을 FrontBuffer에 그림
 		}
 	}
 
-	ClearBuffer(CurrentBuffer);
+	ClearBuffer(CurrentBuffer);	// 메인 버퍼를 초기화함.
 }
 
 void FighterMove(struct Fighter* fighter)			// Fighter 이동
 {
-	if (fighter->team == LEFT)
+	if (fighter->team == LEFT)	// 전투기가 왼쪽 진영일 경우.
 	{
-		if (GetAsyncKeyState(VK_A) & 0x8000) { //왼쪽
+		if (GetAsyncKeyState(VK_A) & 0x8000) { // A키를 누루면 왼쪽으로 이동
 			if (fighter->pos.X > 1 + (FighterSpeed - 1))
 			{
 				fighter->pos.X += -1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_D) & 0x8000) { //오른쪽
+		if (GetAsyncKeyState(VK_D) & 0x8000) { // D키를 누루면 왼쪽으로 이동
 			if (fighter->pos.X < (Buffer_Width / 2) - Fighter_Width - (FighterSpeed - 1))
 			{
 				fighter->pos.X += 1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_W) & 0x8000) { //위
+		if (GetAsyncKeyState(VK_W) & 0x8000) { // W키를 누루면 위쪽으로 이동
 			if (fighter->pos.Y > 1 + (FighterSpeed - 1))
 			{
 				fighter->pos.Y += -1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_S) & 0x8000) { //아래
+		if (GetAsyncKeyState(VK_S) & 0x8000) { // S키를 누루면 아래쪽으로 이동
 			if (fighter->pos.Y < (Buffer_Height - 1) - Fighter_Height - (FighterSpeed - 1))
 			{
 				fighter->pos.Y += 1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_C) & 0x8000) { // 총알 생성
+		if (GetAsyncKeyState(VK_C) & 0x8000) { // C키를 누루면 총알 생성
 			float Moment = clock();
 			if ((Moment - prevTime1) / CLOCKS_PER_SEC >= ShootSpan)
 			{
@@ -593,33 +594,33 @@ void FighterMove(struct Fighter* fighter)			// Fighter 이동
 			}
 		}
 	}
-	else if (fighter->team == RIGHT)
+	else if (fighter->team == RIGHT)	// 전투기가 오른쪽 진영일 경우.
 	{
-		if (GetAsyncKeyState(VK_J) & 0x8000) { //왼쪽
+		if (GetAsyncKeyState(VK_J) & 0x8000) { // J키를 누루면 왼쪽으로 이동
 			if (fighter->pos.X > (Buffer_Width / 2) + (FighterSpeed + 1))
 			{
 				fighter->pos.X += -1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_L) & 0x8000) { //오른쪽
+		if (GetAsyncKeyState(VK_L) & 0x8000) { // L키를 누루면 왼쪽으로 이동
 			if (fighter->pos.X < 148 - Fighter_Width - (FighterSpeed + 1))
 			{
 				fighter->pos.X += 1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_I) & 0x8000) { //위
+		if (GetAsyncKeyState(VK_I) & 0x8000) { // I키를 누루면 위쪽으로 이동
 			if (fighter->pos.Y > 1 + (FighterSpeed - 1))
 			{
 				fighter->pos.Y += -1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_K) & 0x8000) { //아래
+		if (GetAsyncKeyState(VK_K) & 0x8000) { // K키를 누루면 아래쪽으로 이동
 			if (fighter->pos.Y < (Buffer_Height - 1) - Fighter_Height - (FighterSpeed - 1))
 			{
 				fighter->pos.Y += 1 * FighterSpeed;
 			}
 		}
-		if (GetAsyncKeyState(VK_N) & 0x8000) { // 총알 생성
+		if (GetAsyncKeyState(VK_N) & 0x8000) { // N키를 누루면 총알 생성
 			float Moment = clock();
 			if ((Moment - prevTime2) / CLOCKS_PER_SEC >= ShootSpan)
 			{
@@ -630,18 +631,21 @@ void FighterMove(struct Fighter* fighter)			// Fighter 이동
 	}
 }
 
-void BulletProduce(struct Fighter fighter)
+void BulletProduce(struct Fighter fighter)	// 총알을 생성함.
 {
+	// malloc 동적 할당 함수를 사용하여 총알의 메모리를 동적으로 할당한다.
 	struct Bullet* newBullet = (struct Bullet*)malloc(sizeof(struct Bullet));
+
+	// 총알에 데이터를 초기화함.
 	strcpy_s(newBullet->name, sizeof(newBullet->name), fighter.name);
 
-	if (fighter.team == LEFT)	// 왼쪽 진영
+	if (fighter.team == LEFT)	// 왼쪽 진영 전투기가 총알을 생성한 경우
 	{
 		newBullet->pos.X = fighter.pos.X + 2;
 		newBullet->pos.Y = fighter.pos.Y + 2;
 		newBullet->direction = 1;
 	}
-	else				// 오른쪽 진영
+	else				// 오른쪽 진영의 전투기가 총알을 생성한 경우
 	{
 		newBullet->pos.X = fighter.pos.X - 1;
 		newBullet->pos.Y = fighter.pos.Y + 2;
@@ -654,10 +658,10 @@ void BulletProduce(struct Fighter fighter)
 	newBullet->prev->next = newBullet;
 }
 
-void Shooting() {
+void Shooting() {	// 총알 발사
 	struct Bullet* nowBullet = HeadBullet.next;
 	while (nowBullet != &TailBullet) {
-		if (nowBullet->pos.X > 140 || nowBullet->pos.X < 8)
+		if (nowBullet->pos.X > 140 || nowBullet->pos.X < 8)	// 만약 총알이 벽에 닿으면 총알을 삭제
 		{
 			// DeleteBullet()
 			struct Bullet* DeleteBullet = nowBullet;
@@ -668,20 +672,19 @@ void Shooting() {
 		}
 		else
 		{
-			nowBullet->pos.X += nowBullet->direction * BulletSpeed;
+			nowBullet->pos.X += nowBullet->direction * BulletSpeed;	// 총알이 벽에 닿지 않았으면 총알이동.
 		}
-		nowBullet = nowBullet->next;
+		nowBullet = nowBullet->next;	// 다음 총알노드로 이동.
 	}
 }
 
-void Collider(struct Fighter* fighter)
+void Collider(struct Fighter* fighter)	// 총알과 플레이어 충돌 처리.
 {	
 	int dir;
-	if (fighter->team == LEFT)
+	if (fighter->team == LEFT)	// 전투기가 왼쪽진형일 경우
 	{
 		dir = -1;
-	}
-	else
+	}							// 전투기가 오른쪽진형일 경우
 	{
 		dir = 1;
 	}
@@ -693,6 +696,7 @@ void Collider(struct Fighter* fighter)
 		{
 			if (fighter->pos.X - 1 <= nowBullet->pos.X && nowBullet->pos.X <= fighter->pos.X + Fighter_Width + 1 &&
 				fighter->pos.Y - 1 <= nowBullet->pos.Y && nowBullet->pos.Y <= fighter->pos.Y + Fighter_Height + 1)
+				// 만약 총알이 전투기와 충돌했을시 총알을 삭제하고 전투기 Hp를 감소시킴.
 			{
 				// DeleteBullet()
 				struct Bullet* DeleteBullet = nowBullet;
@@ -706,9 +710,9 @@ void Collider(struct Fighter* fighter)
 		nowBullet = nowBullet->next;
 	}
 }
-void Fighter_Died(int HP)
+void Fighter_Died(int HP)	// 전투기 사망.
 {
-	if (HP <= 0)
+	if (HP <= 0)	// 만약 전투기의 체력이 0에 도달하면 Playing 변수의 값을 0으로 바꾸어 게임을 종료시킴.
 	{
 		Playing = 0;
 	}
